@@ -28,3 +28,8 @@ To build and run the game, follow these steps:
 Alternatively run the game using `odin run .`
 
 ## Controls
+- `Left click` to place a cell, hold to draw
+- `Right click` to remove a cell, hold to erase
+- Press `C` to clear the grid
+- Hold `Space` to pause the simulation
+- Hold `Right Arrow` to simulate as fast as possible
