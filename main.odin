@@ -1,6 +1,5 @@
 package main
 
-import "core:math/rand"
 import "core:time"
 import rl "vendor:raylib"
 
@@ -20,6 +19,8 @@ grid := new([GRID_WIDTH * GRID_HEIGHT]bool)
 last_mouse_pos := Vec2{0, 0}
 mouse_pressed := false
 time_of_next_tick := TICK_TIME_DIFF
+paused := false
+space_pressed := false
 
 Vec2 :: [2]i32
 
@@ -43,8 +44,8 @@ mouse_pos :: proc() -> Vec2 {
 
 place_cell_handle :: proc(value: bool) {
 	mouse_pos := mouse_pos()
-	mouse_pos.x = min(mouse_pos.x, GRID_WIDTH - 1)
-	mouse_pos.y = min(mouse_pos.y, GRID_HEIGHT - 1)
+	mouse_pos.x = max(0, min(mouse_pos.x, GRID_WIDTH - 1))
+	mouse_pos.y = max(0, min(mouse_pos.y, GRID_HEIGHT - 1))
 
 	current_pos := last_mouse_pos if mouse_pressed else mouse_pos
 	last_mouse_pos = mouse_pos
@@ -126,8 +127,15 @@ game_loop :: proc() {
 	if rl.IsKeyDown(.C) {
 		clear_board()
 	}
-
-	if !rl.IsKeyDown(.SPACE) {
+	if rl.IsKeyDown(.SPACE) {
+		if !space_pressed {
+			space_pressed = true
+			paused = !paused
+		}
+	} else {
+		space_pressed = false
+	}
+	if !paused {
 		if rl.GetTime() > time_of_next_tick || rl.IsKeyDown(.RIGHT) {
 			update_cells()
 			time_of_next_tick = rl.GetTime() + TICK_TIME_DIFF
@@ -142,6 +150,10 @@ draw :: proc() {
 
 	pixel_width := WINDOW_WIDTH / GRID_WIDTH
 	pixel_height := WINDOW_HEIGHT / GRID_HEIGHT
+
+	if paused {
+		rl.DrawText("paused", 10, 10, 20, rl.GRAY)
+	}
 
 	rl.ClearBackground(rl.BLACK)
 	for x in 0 ..< GRID_WIDTH {
